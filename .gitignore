@@ -1,0 +1,15 @@
+# Build artifacts
+*.o
+*.ko
+*.mod
+*.mod.c
+
+# Exercise binaries
+exercises/*/main
+!exercises/*/main.c
+
+# Editor
+*.swp
+*.swo
+*~
+.*.un~
