@@ -1,0 +1,34 @@
+name: Kernel C Style Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y gcc make perl
+
+      - name: Checkpatch (coding style)
+        run: |
+          echo "=== Kernel Coding Style Check ==="
+          FAIL=0
+          for f in $(find exercises -name '*.c' -o -name '*.h'); do
+            echo "--- $f ---"
+            perl scripts/checkpatch.pl --no-tree --no-signoff -f "$f" || FAIL=1
+          done
+          if [ "$FAIL" = "1" ]; then
+            echo "::warning::Some files have style issues (see above)"
+          fi
+
+      - name: Compile all exercises
+        run: make all
+
+      - name: Run tests
+        run: make test
