@@ -13,3 +13,8 @@ exercises/*/main
 *.swo
 *~
 .*.un~
+
+# c-basics compiled binaries (keep .c / Makefile / *.md)
+c-basics/*/segfault
+c-basics/*/loop
+c-basics/*/fib
