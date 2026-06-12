@@ -1,0 +1,10 @@
+The quick brown fox jumps over the lazy dog.
+Hello, world!
+This is a test file for my_wc.
+
+Lines can be empty like the one above.
+One two three four five six seven eight nine ten.
+Short.
+   Leading spaces and trailing spaces
+Tabs	are	also	whitespace.
+Final line with newline.

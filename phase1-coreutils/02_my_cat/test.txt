@@ -1,0 +1,7 @@
+First line of test data.
+Second line here.
+
+Fourth line after a blank line.
+  Indented with spaces.
+	Indented with a tab.
+Last line.

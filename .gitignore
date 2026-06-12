@@ -18,3 +18,39 @@ exercises/*/main
 c-basics/*/segfault
 c-basics/*/loop
 c-basics/*/fib
+
+# --- compiled binaries (added 2026-06-12) ---
+# per-phase build outputs (sources protected by the trailing whitelist)
+phase1-coreutils/*/my_*
+phase2-data-structures/*/test_*
+phase3-system-tools/*/my_*
+leetcode/*/*/*_solution
+leetcode/*/*/*/[0-9][0-9]_solution
+
+# c-basics one-off binaries (same name as their .c, no extension)
+c-basics/day-16/calc
+c-basics/day-17/addr
+c-basics/day-17/divmod
+c-basics/day-17/swap
+c-basics/day-18/sizeof_trap
+c-basics/day-19/arrays
+c-basics/day-19/basic
+c-basics/day-19/calloc_demo
+c-basics/day-19/errors_dfree
+c-basics/day-19/errors_leak
+c-basics/day-19/errors_uaf
+c-basics/day-19/strbuf
+c-basics/day-20/bad
+c-basics/day-20/bad_strcpy
+c-basics/day-20/bad_strncpy
+c-basics/day-20/my_strlen
+c-basics/day-20/my_strscpy
+c-basics/day-21/list_demo
+c-basics/day-21/step1
+c-basics/day-21/step2
+
+# whitelist: never ignore sources / docs / build files
+!*.c
+!*.h
+!*.md
+!Makefile

@@ -1,0 +1,41 @@
+# leetcode/Makefile.common — included by each problem's Makefile
+#
+# Usage in problem Makefile:
+#   PROBLEM = 01_my_strlen
+#   include ../../Makefile.common
+
+CC      ?= gcc
+CFLAGS  ?= -Wall -Wextra -g -O0 -std=c11
+ASAN    ?= -fsanitize=address,undefined
+
+.PHONY: all run valgrind asan check solution clean
+
+all: $(PROBLEM)
+
+$(PROBLEM): starter.c
+	$(CC) $(CFLAGS) starter.c -o $(PROBLEM)
+
+$(PROBLEM)_asan: starter.c
+	$(CC) $(CFLAGS) $(ASAN) starter.c -o $@
+
+$(PROBLEM)_solution: solution.c
+	$(CC) $(CFLAGS) solution.c -o $@
+
+run: $(PROBLEM)
+	./$(PROBLEM)
+
+valgrind: $(PROBLEM)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes \
+	         --error-exitcode=1 ./$(PROBLEM)
+
+asan: $(PROBLEM)_asan
+	./$(PROBLEM)_asan
+
+check: valgrind asan
+	@echo "=== ✅ ALL CHECKS PASSED for $(PROBLEM) ==="
+
+solution: $(PROBLEM)_solution
+	./$(PROBLEM)_solution
+
+clean:
+	rm -f $(PROBLEM) $(PROBLEM)_asan $(PROBLEM)_solution
