@@ -37,9 +37,16 @@ kernel-c-practice/
 │   ├── 09_my_shell
 │   └── 10_my_hexdump
 │
-└── phase4-kernel-modules/  ← 進入 kernel space
-    ├── 11_hello_module
-    └── 12_proc_info
+├── phase4-kernel-modules/  ← 進入 kernel space
+│   ├── 11_hello_module
+│   └── 12_proc_info
+│
+└── phase5-kernel-debugging/ ← 故意埋 bug，用除錯工具抓（QEMU/VM 內跑）
+    ├── 13_kasan_uaf
+    ├── 14_kmemleak
+    ├── 15_kprobe_trace
+    ├── 16_ftrace_lab
+    └── 17_panic_notifier
 ```
 
 ## 使用方式
@@ -108,6 +115,20 @@ make check
 | 12 | proc_info | ★★★ | proc_create, proc_ops, atomic, copy_to_user |
 
 🔧 新增工具：insmod/rmmod, dmesg, checkpatch.pl, make C=1
+
+### Phase 5：Kernel 除錯實戰（故意埋 bug → 用工具抓）
+
+> ⚠️ 這些 module 會故意搞壞記憶體 / 觸發 lockup，**務必在 QEMU/VM 裡 insmod，不要在主機**（見 `wargame/qemu-sandbox/`）。前置：先做完 Phase 4（會寫 module）。
+
+| # | 專案 | 練哪把工具 | 對應 wiki |
+|---|------|-----------|-----------|
+| 13 | kasan_uaf | KASAN（use-after-free） | `linux_kernel/wiki/tools/kernel-memory-checkers.md` |
+| 14 | kmemleak | kmemleak（記憶體洩漏） | 同上 |
+| 15 | kprobe_trace | kprobes（攔截函式取參數） | `tools/kprobes.md` |
+| 16 | ftrace_lab | ftrace + trace-cmd（追流程） | `tools/ftrace.md` |
+| 17 | panic_notifier | 自訂 panic handler + lockup 偵測 | `concepts/kernel-panic-lockup-hang.md` |
+
+🔧 新增工具：KASAN / kmemleak / kprobes / ftrace / KGDB — 全套地圖見 `linux_kernel/wiki/guides/kernel-debugging-roadmap.md`
 
 ## Kernel 模式範例（exercises/）
 

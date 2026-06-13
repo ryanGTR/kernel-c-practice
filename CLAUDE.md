@@ -16,6 +16,7 @@ phase1-coreutils/       ← 重寫 Unix 工具（wc/cat/echo/grep/sort）
 phase2-data-structures/ ← linked list / hash table / dynamic array
 phase3-system-tools/    ← my_shell / my_hexdump（碰 syscall）
 phase4-kernel-modules/  ← hello_module / proc_info（kernel space）
+phase5-kernel-debugging/ ← 故意埋 bug，用 KASAN/kmemleak/kprobes/ftrace/kgdb 抓（13-17，QEMU 內跑）
 c-basics/               ← 每日 C 基礎練習（day-NN）
 leetcode/               ← C 解題，分 pointer/memory/kernel-idiom 三組
 scripts/                ← check-c.sh（深度檢查）、checkpatch.pl
