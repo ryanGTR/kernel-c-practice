@@ -22,7 +22,22 @@ test: $(TARGET)
 valgrind: $(TARGET)
 	valgrind --leak-check=full --error-exitcode=1 ./$(TARGET) test.txt
 
-clean:
-	rm -f $(TARGET)
+# valgrind can't run on this Arch box (stripped ld.so, no glibc debuginfo),
+# so use the compiler's ASan/LSan/UBSan instead -- same memory guarantees,
+# no debug symbols needed. A clean run prints no sanitizer report.
+SANFLAGS = -fsanitize=address,undefined -fno-omit-frame-pointer
 
-.PHONY: clean test valgrind
+asan: $(TARGET).c
+	$(CC) -Wall -Wextra -std=c99 -g $(SANFLAGS) -o $(TARGET)-asan $<
+	@echo "=== ASan/LSan/UBSan: single file ==="
+	./$(TARGET)-asan test.txt
+	@echo "=== ASan/LSan/UBSan: stdin ==="
+	./$(TARGET)-asan < test.txt
+	@echo "=== ASan/LSan/UBSan: multiple + missing file ==="
+	-./$(TARGET)-asan test.txt nonexistent test.txt
+	@echo "ALL SANITIZER CHECKS CLEAN"
+
+clean:
+	rm -f $(TARGET) $(TARGET)-asan
+
+.PHONY: clean test valgrind asan

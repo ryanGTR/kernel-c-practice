@@ -46,13 +46,13 @@
 
 ## 完成清單
 
-- [ ] `make` 零警告編譯通過
-- [ ] `./my_wc test.txt` 輸出與 `wc test.txt` 一致
-- [ ] `./my_wc < test.txt` (stdin) 輸出與 `wc` 一致
-- [ ] 多檔案模式有 total 行
-- [ ] 不存在的檔案印錯誤到 stderr
-- [ ] `valgrind` 零錯誤、零洩漏
-- [ ] 原始碼少於 100 行
+- [x] `make` 零警告編譯通過
+- [x] `./my_wc test.txt` 輸出與 `wc test.txt` 一致
+- [x] `./my_wc < test.txt` (stdin) 輸出與 `wc` 一致
+- [x] 多檔案模式有 total 行
+- [x] 不存在的檔案印錯誤到 stderr（exit code 非零）
+- [x] `valgrind` 零錯誤、零洩漏（環境問題，改以 `make asan` ASan/LSan/UBSan 代驗，零報告）
+- [x] 原始碼少於 100 行（96 行）
 
 ---
 
