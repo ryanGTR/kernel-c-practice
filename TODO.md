@@ -3,13 +3,13 @@
 > 真實進度只認「親手寫完 + 過 `-Wall -Wextra -Werror` + 過 valgrind + 對照真實輸出」。
 > 骨架/spec 不算通關。斷 session 先看這份。
 
-最後更新：2026-06-28
+最後更新：2026-07-13
 
 ## Phase 1 — Coreutils（重寫 Unix 工具）
-- [x] 01_my_wc      ✅ 已通關（2026-06-28）
-- [ ] 02_my_cat     ← **目前這關**
-- [x] 03_my_echo    ✅ 已通關
-- [ ] 04_my_grep
+- [x] 01_my_wc      ✅ 已通關（2026-06-28）— ⚠️ 欠 4 個 style warning（通關時規矩還沒第 5 條）
+- [x] 02_my_cat     ✅ 已通關（2026-07-13）— **四個裁判全過**（gcc / test / asan / checkpatch）
+- [x] 03_my_echo    ✅ 已通關 — ⚠️ 欠 2 個 style warning（同上）
+- [ ] 04_my_grep    ← **目前這關**
 - [ ] 05_my_sort
 
 ## Phase 2 — 資料結構（手動 malloc/free）
@@ -41,12 +41,37 @@
 - wargame：lv0 ~ lv4（kernel module / oops 除錯）
 
 ## 通關規矩（每關）
-1. `make` 零警告（`-Wall -Wextra -Werror`）
+1. `make` 零警告（`-Wall -Wextra -Werror`）— gcc 這關只證明「跑得對」
 2. ~~valgrind 零 error、零 leak~~ → 本機 valgrind 跑不起來（Arch 把 ld.so strip、debuginfod 缺 bleeding-edge glibc 符號）。改用 `make asan`（ASan/LSan/UBSan）代驗，零報告即過。
-3. 與系統工具 `diff` 比對輸出一致
-4. 過了就 commit + push（remote: ryanGTR），並回來勾這份 TODO
+3. 與系統工具 `diff` 比對輸出一致 — **且測資要真的蓋到邊界**（見下方「驗收清單本身會有洞」）
+4. **`make style` 零 warning**（checkpatch，kernel coding style）← 2026-07-13 新增
+5. 過了就 commit + push（remote: ryanGTR），並回來勾這份 TODO
+
+### ⚠️ 驗收清單本身會有洞（2026-07-13 的教訓，讀完再開下一關）
+
+規矩 4 是這天補的。補之前，01_my_wc 和 03_my_echo 都掛著「✅ 已通關」，
+但從來沒被 checkpatch 看過 —— **不是它們沒過，是根本沒人問過這一題**。
+清單漏一個維度，那個維度上的債就默默累積兩關才被發現。
+
+同一天在 02_my_cat 上，同一個病發作了三次：
+
+| # | 用了什麼指標 | 它說 | 真相 |
+|---|---|---|---|
+| 1 | `make test` 全綠 | 程式對了 | **錯的**。test.txt 每行都有 `\n`，測不到「檔尾無換行」那條路徑 |
+| 2 | `make` 零 warning | 沒問題 | **style 有 1 個 warning**。gcc 不管 coding style |
+| 3 | 從父 repo 跑 `git ls-files wiki/` 回 0 | wiki 沒進 git、有蒸發風險 | **錯的**。wiki 是巢狀 repo，有自己的 remote，父 repo 本來就不追蹤它 |
+
+**通則：一個指標說 OK，只證明「它量的那件事」OK。**
+綠燈不是證據，「有覆蓋到那條路徑」才是證據。新加測試要先確認它會**紅**，
+否則你分不出「測試通過」和「測試根本沒測到」——一條從沒紅過的測試，
+跟 `assertTrue(true)` 沒有區別。
 
 ## 心得 / 踩雷
 - 01_my_wc：`while (ch = getc(fp) != EOF)` 少括號 → `!=` 優先序高於 `=`，ch 只拿到 0/1（Java 因 `==` 回傳 boolean 不會中招）。正解 `while ((ch = getc(fp)) != EOF)`。
 - 01_my_wc：GNU wc 欄寬是**動態**的（= 最大數字 bytes 的位數），不是固定寬度；無檔名時結尾不留空格。
+- 02_my_cat：**指標當條件恆為真**。`at_line_start` 改成 `int *` 後，`if (number && at_line_start)` 判斷的是「位址」不是「內容」，有效位址永不為 0 → 每個字元都被當行首編號。`-Wall -Wextra -Werror` **不會警告**，因為 `if (ptr)` 就是合法的 NULL 檢查慣用寫法（同一支程式的 `if (!fp)` 正是它）。編譯器擋型別錯，不擋「想要內容卻寫成地址」。Java 寫 `if (someObject)` 直接編譯錯誤，所以這個 bug 在 Java 不可能存在——手感救不了你。
+- 02_my_cat：`-n` 的行號與行首旗標都是**串流層級**狀態，不是檔案層級。`lineno` 記得跨檔案傳，`at_line_start` 也要（漏了它 → 前一檔沒有換行結尾時，下一檔的第一個字元會被誤判成新行）。初值必須是 1（串流第一個字元本來就在行首）。
+- 02_my_cat：`fopen` 失敗要 `fprintf(stderr, ...) + status = 1 + continue`，**不是 return**。GNU cat 會印錯誤到 stderr、繼續處理其餘檔案、最後才 exit 1。
+- 02_my_cat：**綠燈不是證據，覆蓋率才是**。原 `make test` 全過但程式是錯的——測資（`test.txt`）每行都有換行結尾，測不到壞掉的路徑。新測試先確認會紅（red）再去修，否則你分不出「測試通過」和「測試根本沒測到」。
+- 02_my_cat：對照組會被 shell alias 汙染。Ryan 的 `cat` 是 `bat --paging=never` 的 alias，缺檔時 exit code 回 **0**（GNU cat 回 1）、錯誤訊息格式也不同。Makefile 一律用 `CAT = /usr/bin/cat` 絕對路徑。
 - 通用：本機 valgrind 無法用，記憶體一律走 `make asan`（見各專案 Makefile 的 asan target）。

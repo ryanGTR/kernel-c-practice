@@ -27,4 +27,12 @@ valgrind: $(TARGET)
 clean:
 	rm -f $(TARGET)
 
-.PHONY: clean test valgrind
+# gcc and checkpatch are two different judges: `make` says whether it RUNS,
+# `make style` says whether it LOOKS like kernel code. Passing one proves
+# nothing about the other.
+CHECKPATCH = ../../scripts/checkpatch.pl
+
+style: $(TARGET).c
+	perl $(CHECKPATCH) --no-tree --no-signoff -f $<
+
+.PHONY: clean test valgrind style
