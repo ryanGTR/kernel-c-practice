@@ -5,6 +5,30 @@
 
 最後更新：2026-07-13
 
+---
+
+## 🔜 下次開工先看這裡（2026-07-13 交接）
+
+**主線任務：`02_my_cat` 的 struct 重構練習。** 完整題目在
+[`phase1-coreutils/02_my_cat/EXERCISE-struct.md`](phase1-coreutils/02_my_cat/EXERCISE-struct.md) —— 那份自足，照著做即可。
+
+一句話背景：Ryan 問「為什麼 C 的巢狀判斷比 Java 難」，答案是
+**C 沒有 exception（錯誤沒出口 → 就地 if → 縮排變深）+ 沒有 object（狀態沒地方住 →
+參數列爆炸、指標穿透）**。kernel 的三招解法：early return / `goto` 錯誤階梯 / **struct 打包狀態**。
+這個練習是招 3，也是 Phase 2（資料結構）的入場券。
+
+**還欠的債（想清就清，不清也不擋下一關）：**
+- [ ] `01_my_wc` 4 個 style warning、`03_my_echo` 2 個（純風格：宣告後缺空行 ×3、單行 block 多餘大括號 ×3）
+- [ ] 白紙 recall 兩題沒過，下次抽考會再問（答案已寫在
+      `~/Documents/linux_kernel/wiki/daily/2026-04/day-31.md` 的「白紙 recall」段）：
+      1. **為什麼不能 `fclose(stdin)`？**（關鍵字：所有權、fd 0 被 kernel 回收給下一個 open）
+      2. **`if (ptr)` 這種 bug，為什麼 `-Wall -Wextra -Werror` 不警告？**
+         （關鍵字：gcc 分不出 `if (!fp)` 和 `if (ptr)`；型別安全 ≠ 意圖安全）
+
+**⚠️ 給下個 session 的行為提醒**：Ryan 的信心值跟正確率是**反過來**的 ——
+他說「我寫對了」時通常沒跑過（今天連編譯都沒過）；他說「我在亂答」時通常正在真的推理（今天答對了）。
+**任何「我懂了 / 我修好了 / 測試過了」一律先驗再信**，這是他本人要求的把關機制。
+
 ## Phase 1 — Coreutils（重寫 Unix 工具）
 - [x] 01_my_wc      ✅ 已通關（2026-06-28）— ⚠️ 欠 4 個 style warning（通關時規矩還沒第 5 條）
 - [x] 02_my_cat     ✅ 已通關（2026-07-13）— **四個裁判全過**（gcc / test / asan / checkpatch）
