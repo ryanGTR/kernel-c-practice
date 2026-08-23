@@ -3,7 +3,7 @@
 > 真實進度只認「親手寫完 + 過 `-Wall -Wextra -Werror` + 過 valgrind + 對照真實輸出」。
 > 骨架/spec 不算通關。斷 session 先看這份。
 
-最後更新：2026-07-13
+最後更新：2026-08-23（Phase 2 路線圖；09–12 骨架＋會紅的測試入庫，Makefile 統一 asan/style 裁判）
 
 ---
 
@@ -37,9 +37,14 @@
 - [ ] 05_my_sort
 
 ## Phase 2 — 資料結構（手動 malloc/free）
-- [ ] 06_linked_list
-- [ ] 07_hash_table
-- [ ] 08_dynamic_array
+> 2026-08-23 Ryan 定的順序，路線圖與每站先猜題在 `phase2-data-structures/README.md`。照下面號碼走，不照目錄號碼。
+- [ ] ① 08_dynamic_array（resize / amortized）
+- [ ] ② 06_linked_list（單向）→ 雙向/環狀＝**lab0-c Day 1–2**（8/19 派的，到 8/23 未動）
+- [ ] ③ 09_stack_queue（陣列版 + 鏈結版各一，填對照表）
+- [ ] ④ 10_bst（插入 / 刪除三情況 / 走訪）
+- [ ] ⑤ 11_heap（陣列存，不用指標）
+- [ ] ⑥ 07_hash_table（chaining）
+- [ ] ⑦ 12_graph（鄰接串列 + BFS/DFS）
 
 ## Phase 3 — 系統工具（碰 syscall）
 - [ ] 09_my_shell
