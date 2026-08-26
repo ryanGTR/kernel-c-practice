@@ -34,6 +34,49 @@ make style   # checkpatch 零 warning
 - `spec.md` 底下的對照表 / 口頭題答案（寫進檔案，不是口頭帶過）。
 - 一行「預測 vs 實際」：開寫前先猜會卡在哪，寫完對帳。
 
+## 參考書：`data-structure-in-c`（2026-08-25 掛上）
+
+本機路徑 `~/Documents/data-structure-in-c`（fork 自 **ksw2000/Data-Structure-in-C**，MIT 授權，內容 2022 年）。
+**不併進本 repo、不複製程式碼**——它是別人寫好的完整實作，等於**答案本**。
+
+### ⚠️ 使用規則（只有一條，但很重要）
+
+> **四個裁判全過之後才准打開。** 卡住時可以看，但看之前先在 `spec.md` 寫下「我卡在哪、我猜是什麼問題」。
+>
+> 理由：本 phase 的設計是「`make test` 一開始是紅的，**綠燈不是證據，曾經紅過才是**」。
+> 開著答案寫，紅燈就不會出現，整套設計失效——那時累積的是「看過」不是「會」。
+
+### 七站對照
+
+| 站 | 本目錄 | 參考檔案 | 覆蓋 |
+|---|---|---|---|
+| 1 動態陣列 | `08_dynamic_array/` | `Queue/05-動態陣列實作佇列.c`（resize 在這裡）；`Array/` 只有二維宣告，**不是** amortized 那題 | ⚠️ 部分 |
+| 2a 單向鏈結 | `06_linked_list/` | `Linked-List/03-insert.c`、`04-delete.c`、`05-invert.c`、`06-concatenate.c` | ✅ |
+| 2b 雙向→環狀 | **lab0-c** `queue.c` | `Linked-List/07-insertFront-circular.c`、`08-length-circular.c`（環狀有，**雙向沒有**——lab0-c 的 `list.h` 才是雙向環狀） | ⚠️ 部分 |
+| 3 Stack / Queue | `09_stack_queue/` | `Stack/01,02`（陣列）、`Stack/03`（鏈結）；`Queue/01,02`（陣列）、`Queue/03`（環狀）、`Queue/04`（鏈結） | ✅ 陣列版＋鏈結版各一，正好對上「各一次」 |
+| 4 二元樹→BST | `10_bst/` | `Tree/Binary-Search-Tree.c`；延伸 `AVL-Tree.c`、`Red-Black-Tree.c`（**站 4 不做平衡，留到讀 kernel rbtree 時再看**） | ✅ |
+| 5 Heap | `11_heap/` | `Heap/01-simple-max-heap.c` | ✅ |
+| 6 Hash Table | `07_hash_table/` | **無** | ❌ |
+| 7 Graph + BFS/DFS | `12_graph/` | **無**（`Stack/04-堆疊解迷宮問題.c` 有 DFS 的味道，但不是圖的表示法） | ❌ |
+
+**站 6、站 7 沒有參考**——這兩站只能自己寫，或另找材料。先知道比寫到一半才發現好。
+
+### 不在七站、但可併到別條線的
+
+| 資料夾 | 併到哪 | 備註 |
+|---|---|---|
+| `Pointer/` | `../c-basics/` | 取址取值、指標指向大塊記憶體、陣列名即位址 |
+| `Struct/`、`Union/`、`Enum/` | `../c-basics/` | 自訂型別；`04-結構體指標.c` 對後面每一站都有用 |
+| `String/` | `../c-basics/` | 自刻 `strlen`／`strcpy`／`strcmp`／`strcat`——**這批很值得自己先寫再對照** |
+| `Sorting/` | **lab0-c** Day 5–6 | 五種排序；`merge-sort.c` 正對 lab0-c 的 `q_sort`（穩定、對鏈結串列友善） |
+| `C語言概念澄清.md` | 隨時 | 概念釐清 |
+
+### 授權與出處
+
+上游 `ksw2000/Data-Structure-in-C`，MIT。**只讀不併**；若日後真要引用片段，保留 MIT 授權聲明與出處。
+
+---
+
 ## 之後（不展開）
 
 這 7 站是 CSAPP 線 lab0-c → datalab → … 的前置，也是 kernel 容器（`list.h` / `rbtree` / `min_heap.h` / `hashtable.h`）的對照組：

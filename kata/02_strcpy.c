@@ -28,12 +28,8 @@
 
 static char *my_strcpy(char *dst, const char *src)
 {
-	// char *p = dst;
-	// while ((*p++ = *src++))
-	// 	;
-	// return dst; /* TODO: your code here */
-
 	char *p = dst;
+
 	while (1) {
 		char ch = *src;
 		*p = ch;

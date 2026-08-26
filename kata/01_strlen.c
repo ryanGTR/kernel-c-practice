@@ -22,11 +22,12 @@
 
 static size_t my_strlen(const char *s)
 {
-	size_t i;
+	size_t ch = 0;
 
-	for (i = 0; s[i] != '\0';)
-		i++;
-	return i;
+	while (*s++)
+		ch++;
+
+	return ch;
 }
 
 int main(void)

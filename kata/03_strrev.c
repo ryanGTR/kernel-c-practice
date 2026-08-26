@@ -25,11 +25,27 @@
  */
 #include <assert.h>
 #include <stdio.h>
-#include <string.h>	/* only for strcmp in the test, not for your impl */
+#include <string.h> /* only for strcmp in the test, not for your impl */
 
 static void my_strrev(char *s)
 {
-	(void)s;	/* TODO: delete this and write your code */
+	char *left = s;
+	char *right = s;
+	char tmp;
+
+	while (*right)
+		right++;
+
+	if (right > s)
+		right--;
+
+	while (left < right) {
+		tmp = *left;
+		*left = *right;
+		*right = tmp;
+		left++;
+		right--;
+	}
 }
 
 int main(void)

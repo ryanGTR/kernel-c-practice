@@ -30,18 +30,24 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdio.h>
-#include <string.h>	/* strcmp, for the test only */
+#include <string.h> /* strcmp, for the test only */
 
 static void str_tolower(char *s)
 {
-	(void)s;	/* TODO: delete this and write your code */
+	char *p = s;
+
+	while (*p) {
+		*p = tolower((unsigned char)*p);
+		p++;
+	}
 }
 
 int main(void)
 {
 	char mixed[] = "KerNeL PaNiC";
 	char digits[] = "abc123XYZ";
-	char nonascii[] = { (char)0xC3, 'A', '\0' };	/* high byte: negative as char */
+	char nonascii[] = { (char)0xC3, 'A',
+			    '\0' }; /* high byte: negative as char */
 
 	str_tolower(mixed);
 	assert(strcmp(mixed, "kernel panic") == 0);
@@ -50,7 +56,7 @@ int main(void)
 	assert(strcmp(digits, "abc123xyz") == 0);
 
 	str_tolower(nonascii);
-	assert((unsigned char)nonascii[0] == 0xC3);	/* must survive untouched */
+	assert((unsigned char)nonascii[0] == 0xC3); /* must survive untouched */
 	assert(nonascii[1] == 'a');
 
 	printf("kata 04: PASS\n");
