@@ -49,6 +49,14 @@ c-basics/day-21/list_demo
 c-basics/day-21/step1
 c-basics/day-21/step2
 
+# kata 編譯產物（2026-08-26）：與 .c 同名的執行檔與 -asan 版本
+kata/[0-9][0-9]_*
+!kata/*.c
+!kata/*.h
+!kata/Makefile
+!kata/README.md
+!kata/compile_flags.txt
+
 # whitelist: never ignore sources / docs / build files
 !*.c
 !*.h
