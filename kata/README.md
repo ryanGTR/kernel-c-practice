@@ -87,6 +87,17 @@ make clean
 
 做完 01–10，`my_grep` 和 `my_sort` 你已經有全部零件了，剩下只是組裝。
 
+### 11 起：huihut/interview 題庫系列（2026-09-22 加）
+
+來源是 [huihut/interview](https://github.com/huihut/interview)（C/C++ 面試筆記）。**只取 C 的部分**（大半是 C++，先跳過）；
+那邊只有文字，這裡每題改寫成程式，**交給編譯器對答案**。這系列不是 `my_grep` 零件，可以插隊做。
+
+| # | 題目 | 練什麼 | huihut 章節 |
+|---|---|---|---|
+| 11 | `sizeof`／對齊 | struct padding、欄位順序、union、`__packed`、位域——**預測型**：填數字，全對才綠 | sizeof()、對齊控制、位域、union |
+
+待出（照 huihut 目錄）：const、static、volatile、extern、struct/typedef、enum、巨集、malloc/free；之後「連結裝載庫」對 CSAPP 第 7 章。
+
 ---
 
 ## 回報格式（每題）
