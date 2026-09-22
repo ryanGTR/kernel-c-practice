@@ -8,6 +8,7 @@ Ryan 2026-08-23 定的順序，對應到本目錄與 lab0-c。**不開新 repo**
 |---|---|---|---|---|
 | 1 | 動態陣列（自己寫 resize，理解 amortized） | `08_dynamic_array/` | `ArrayList` | 容量 4 起加倍，push 100 次共搬幾個元素？+4 版呢？（答：124 vs 1200） |
 | 2a | 單向鏈結串列 | `06_linked_list/` | 自刻 `Node` | 刪除節點為什麼要追蹤 prev？刪 head 有什麼特別？ |
+| 2b′ | 雙向（教科書版，**對照用**） | `06b_dlist/` | `java.util.LinkedList` | 同樣的操作用 NULL 結尾＋head/tail 寫一次，跟 lab0-c 並排比：哪些 if 在哨兵版消失了？ |
 | 2b | 雙向 → 環狀（哨兵節點） | **lab0-c** `queue.c`（Day 1–2） | `LinkedList` 內部 | `list_add` 對只有 head 的空環各寫哪四個指標？ |
 | 3 | Stack / Queue（陣列版＋鏈結版各一次） | `09_stack_queue/`；lab0-c 的 `q_insert_head/tail + q_remove_head` 就是 | `ArrayDeque` vs `LinkedList` | ring buffer 的 dequeue 為什麼不搬資料？擴容時為什麼不能直接 realloc？ |
 | 4 | 二元樹 → BST（插入、刪除三情況、走訪） | `10_bst/` | `TreeMap`（少了平衡） | 刪有兩個子節點的節點，為什麼拿右子樹最小值來補？ |
