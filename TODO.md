@@ -3,7 +3,7 @@
 > 真實進度只認「親手寫完 + 過 `-Wall -Wextra -Werror` + 過 valgrind + 對照真實輸出」。
 > 骨架/spec 不算通關。斷 session 先看這份。
 
-最後更新：2026-08-23（Phase 2 路線圖；09–12 骨架＋會紅的測試入庫，Makefile 統一 asan/style 裁判）
+最後更新：2026-09-29（06_linked_list 通關；練習總佇列改看 `~/Documents/PRACTICE.md`）
 
 ---
 
@@ -39,7 +39,7 @@
 ## Phase 2 — 資料結構（手動 malloc/free）
 > 2026-08-23 Ryan 定的順序，路線圖與每站先猜題在 `phase2-data-structures/README.md`。照下面號碼走，不照目錄號碼。
 - [ ] ① 08_dynamic_array（resize / amortized）
-- [ ] ② 06_linked_list（單向）→ 雙向/環狀＝**lab0-c Day 1–2**（8/19 派的，到 8/23 未動）
+- [x] ② 06_linked_list（單向）✅ 已通關（2026-09-29）— 四個裁判全過；bonus list_reverse 跳過。雙向/環狀＝**lab0-c**（已完成 7 個，下一個 q_delete_mid）
 - [ ] ③ 09_stack_queue（陣列版 + 鏈結版各一，填對照表）
 - [ ] ④ 10_bst（插入 / 刪除三情況 / 走訪）
 - [ ] ⑤ 11_heap（陣列存，不用指標）
@@ -103,4 +103,7 @@
 - 02_my_cat：`fopen` 失敗要 `fprintf(stderr, ...) + status = 1 + continue`，**不是 return**。GNU cat 會印錯誤到 stderr、繼續處理其餘檔案、最後才 exit 1。
 - 02_my_cat：**綠燈不是證據，覆蓋率才是**。原 `make test` 全過但程式是錯的——測資（`test.txt`）每行都有換行結尾，測不到壞掉的路徑。新測試先確認會紅（red）再去修，否則你分不出「測試通過」和「測試根本沒測到」。
 - 02_my_cat：對照組會被 shell alias 汙染。Ryan 的 `cat` 是 `bat --paging=never` 的 alias，缺檔時 exit code 回 **0**（GNU cat 回 1）、錯誤訊息格式也不同。Makefile 一律用 `CAT = /usr/bin/cat` 絕對路徑。
+- 06_linked_list：**刪 head 是特例**。原版從 `head->next` 開始比，head 永遠比不到；改成先判 head 後，又 `return head`（剛被 free 的那顆）→ ASan 報 heap-use-after-free。頭換人就要回傳新頭，呼叫端要接住。
+- 06_linked_list：`list_free_all` 用 `while (cur->next != NULL)` → 第一顆 free 兩次（double free）、最後一顆沒 free。條件要看 `cur` 本身；條件對了，開頭的 `if (!head)` 也跟著變多餘。
+- 06_linked_list：**又一次綠燈不是證據**。`list_print` 是無窮迴圈（cur 只在 if 裡前進），但四個裁判全綠——因為 main.c 根本沒呼叫它。圖解在 `phase2-data-structures/06_linked_list/diagrams/`。
 - 通用：本機 valgrind 無法用，記憶體一律走 `make asan`（見各專案 Makefile 的 asan target）。
