@@ -1,0 +1,4 @@
+🧠 ring buffer 複習 Day 1（2 分鐘，不准查）
+Q1：cap=8、head=3、size=6，元素在哪幾格？下一個 enqueue 寫到哪？（先寫公式再代）
+Q2：Java new ArrayList<>(20) 之後 add 5 個，capacity 跟 size 各是多少？
+直接回我答案就好。
