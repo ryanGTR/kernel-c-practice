@@ -85,8 +85,15 @@ void astack_destroy(struct astack *s)
 
 struct lstack *lstack_create(void)
 {
-	/* TODO */
-	return NULL;
+	struct lstack *s = malloc(sizeof(struct lstack));
+
+	if (!s)
+		return NULL;
+
+	s->size = 0;
+	s->top = NULL;
+
+	return s;
 }
 
 int lstack_push(struct lstack *s, int value)
