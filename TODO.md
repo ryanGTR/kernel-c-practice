@@ -37,7 +37,7 @@
 - [ ] 05_my_sort
 
 ## Phase 2 — 資料結構（手動 malloc/free）
-> 2026-08-23 Ryan 定的順序，路線圖與每站先猜題在 `phase2-data-structures/README.md`。照下面號碼走，不照目錄號碼。
+> ⚠️ **「下一個做哪個」只看 `~/Documents/PRACTICE.md`**（2026-09-29 起的單一佇列；2026-10-01 已把 09_stack_queue 提到第 1）。下面 ①～⑦ 是 2026-08-23 的原始路線，只記勾選狀態，**不代表順序**。每站先猜題在 `phase2-data-structures/README.md`。
 - [ ] ① 08_dynamic_array（resize / amortized）
 - [x] ② 06_linked_list（單向）✅ 已通關（2026-09-29）— 四個裁判全過；bonus list_reverse 跳過。雙向/環狀＝**lab0-c**（已完成 7 個，下一個 q_delete_mid）
 - [ ] ③ 09_stack_queue（陣列版 + 鏈結版各一，填對照表）
