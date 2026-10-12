@@ -8,45 +8,77 @@
 
 struct astack *astack_create(void)
 {
-	/* TODO: allocate struct + data (ASTACK_INIT_CAP) */
-	return NULL;
+	struct astack *as = malloc(sizeof(struct astack));
+
+	if (!as)
+		return NULL;
+
+	as->data = malloc(sizeof(*as->data) * ASTACK_INIT_CAP);
+
+	if (!as->data) {
+		free(as);
+		return NULL;
+	}
+
+	as->size = 0;
+	as->capacity = ASTACK_INIT_CAP;
+
+	return as;
 }
 
 int astack_push(struct astack *s, int value)
 {
-	/* TODO: grow (double) when size == capacity; realloc into a temp first */
-	(void)s;
-	(void)value;
-	return -1;
+	if (!s)
+		return -1;
+
+	if (s->size == s->capacity) {
+		void *tmp =
+			realloc(s->data, sizeof(*s->data) * s->capacity * 2);
+
+		if (!tmp)
+			return -1;
+
+		s->data = tmp;
+		s->capacity = s->capacity * 2;
+	}
+
+	s->data[s->size] = value;
+	s->size++;
+
+	return 0;
 }
 
 int astack_pop(struct astack *s, int *out)
 {
-	/* TODO: -1 if empty; else *out = data[--size] */
-	(void)s;
-	(void)out;
-	return -1;
+	if (!s || !s->size)
+		return -1;
+
+	*out = s->data[--s->size];
+
+	return 0;
 }
 
 int astack_peek(struct astack *s, int *out)
 {
-	/* TODO */
-	(void)s;
-	(void)out;
-	return -1;
+	if (!s || !s->size)
+		return -1;
+
+	*out = s->data[s->size - 1];
+
+	return 0;
 }
 
 size_t astack_size(struct astack *s)
 {
-	/* TODO */
-	(void)s;
-	return 0;
+	return s->size;
 }
 
 void astack_destroy(struct astack *s)
 {
-	/* TODO: free data, then struct; must accept NULL */
-	(void)s;
+	if (s) {
+		free(s->data);
+		free(s);
+	}
 }
 
 /* ---------- linked-list-backed ---------- */
