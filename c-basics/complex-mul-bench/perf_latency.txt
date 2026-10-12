@@ -1,0 +1,10 @@
+# 2026-09-27 06:49:31  perf stat（cycles:u / instructions:u），taskset -c 2，N=1e8 串成一條鏈
+mul4    0.191 s  (1.91 ns/op)  result 2.45297e-05+3.82027e-05i
+673625968,,cycles:u,192490194,100.00,,
+1000371815,,instructions:u,192490194,100.00,,
+mul3    0.341 s  (3.41 ns/op)  result 2.45297e-05+3.82027e-05i
+1200895273,,cycles:u,342883367,100.00,,
+1200371993,,instructions:u,342883367,100.00,,
+builtin 0.199 s  (1.99 ns/op)  result 2.45297e-05+3.82027e-05i
+701849076,,cycles:u,200601731,100.00,,
+1600371797,,instructions:u,200601731,100.00,,

@@ -62,3 +62,9 @@ kata/[0-9][0-9]_*
 !*.h
 !*.md
 !Makefile
+c-basics/complex-mul-bench/cmul_bench
+c-basics/complex-mul-bench/cmul_trace
+c-basics/struct/struct_demo
+
+# Reference PDFs (copyrighted, ~157MB) stay local only
+book/
