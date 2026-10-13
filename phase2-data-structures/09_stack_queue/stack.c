@@ -113,29 +113,48 @@ int lstack_push(struct lstack *s, int value)
 
 int lstack_pop(struct lstack *s, int *out)
 {
-	/* TODO: unlink top, free it, -1 if empty */
-	(void)s;
-	(void)out;
-	return -1;
+	struct lnode *emp;
+
+	if (!s || !s->top)
+		return -1;
+
+	*out = s->top->data;
+	emp = s->top;
+	s->top = s->top->next;
+	free(emp);
+	s->size--;
+	return 0;
 }
 
 int lstack_peek(struct lstack *s, int *out)
 {
-	/* TODO */
-	(void)s;
-	(void)out;
-	return -1;
+	if (!s || !s->top)
+		return -1;
+
+	*out = s->top->data;
+
+	return 0;
 }
 
 size_t lstack_size(struct lstack *s)
 {
-	/* TODO */
-	(void)s;
-	return 0;
+	return s->size;
 }
 
 void lstack_destroy(struct lstack *s)
 {
-	/* TODO: free every node (save next before free!), then struct */
-	(void)s;
+	struct lnode *cur, *next;
+
+	if (!s)
+		return;
+
+	cur = s->top;
+
+	while (cur != NULL) {
+		next = cur->next;
+		free(cur);
+		cur = next;
+	}
+
+	free(s);
 }
