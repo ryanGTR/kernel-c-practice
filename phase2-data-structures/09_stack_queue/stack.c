@@ -98,10 +98,17 @@ struct lstack *lstack_create(void)
 
 int lstack_push(struct lstack *s, int value)
 {
-	/* TODO: new node becomes top; O(1), no traversal */
-	(void)s;
-	(void)value;
-	return -1;
+	struct lnode *node = malloc(sizeof(*node));
+
+	if (!node)
+		return -1;
+
+	s->size++;
+	node->data = value;
+	node->next = s->top;
+	s->top = node;
+
+	return 0;
 }
 
 int lstack_pop(struct lstack *s, int *out)
