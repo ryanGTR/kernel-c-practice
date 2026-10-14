@@ -9,7 +9,21 @@
 struct aqueue *aqueue_create(void)
 {
 	/* TODO */
-	return NULL;
+	struct aqueue *aq = malloc(sizeof(*aq));
+
+	if (!aq)
+		return NULL;
+
+	aq->capacity = AQUEUE_INIT_CAP;
+
+	aq->data = malloc(AQUEUE_INIT_CAP * sizeof(*aq->data));
+	if (!aq->data) {
+		free(aq);
+		return NULL;
+	}
+	aq->size = 0;
+	aq->head = 0;
+	return aq;
 }
 
 int aqueue_enqueue(struct aqueue *q, int value)
@@ -20,38 +34,72 @@ int aqueue_enqueue(struct aqueue *q, int value)
 	 * the new buffer starting at index 0, then head = 0.
 	 * Then data[(head + size) % capacity] = value; size++.
 	 */
-	(void)q;
-	(void)value;
-	return -1;
+
+	if (!q)
+		return -1;
+
+	if (q->size < q->capacity) {
+		q->data[(q->head + q->size) % q->capacity] = value;
+		q->size++;
+	} else {
+		size_t new_cap = 2 * q->capacity;
+		int *new_data = malloc(new_cap * sizeof(*new_data));
+
+		if (!new_data)
+			return -1;
+
+		for (size_t i = 0; i < q->size; i++)
+			new_data[i] = q->data[(q->head + i) % q->capacity];
+
+		free(q->data);
+		q->data = new_data;
+		q->capacity = new_cap;
+		q->head = 0;
+
+		q->data[(q->head + q->size) % q->capacity] = value;
+		q->size++;
+	}
+
+	return 0;
 }
 
 int aqueue_dequeue(struct aqueue *q, int *out)
 {
 	/* TODO: -1 if empty; *out = data[head]; head = (head + 1) % cap */
-	(void)q;
-	(void)out;
-	return -1;
+
+	if (!q || q->size == 0)
+		return -1;
+
+	*out = q->data[q->head];
+
+	q->head = (q->head + 1) % q->capacity;
+
+	q->size--;
+
+	return 0;
 }
 
 int aqueue_peek(struct aqueue *q, int *out)
 {
-	/* TODO */
-	(void)q;
-	(void)out;
-	return -1;
+	if (!q || !q->size)
+		return -1;
+
+	*out = q->data[q->head];
+
+	return 0;
 }
 
 size_t aqueue_size(struct aqueue *q)
 {
-	/* TODO */
-	(void)q;
-	return 0;
+	return q->size;
 }
 
 void aqueue_destroy(struct aqueue *q)
 {
-	/* TODO */
-	(void)q;
+	if (q) {
+		free(q->data);
+		free(q);
+	}
 }
 
 /* ---------- linked-list-backed ---------- */
