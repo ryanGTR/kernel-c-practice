@@ -106,43 +106,93 @@ void aqueue_destroy(struct aqueue *q)
 
 struct lqueue *lqueue_create(void)
 {
-	/* TODO */
-	return NULL;
+	struct lqueue *lq = malloc(sizeof(*lq));
+
+	if (!lq)
+		return NULL;
+
+	lq->head = NULL;
+	lq->size = 0;
+	lq->tail = NULL;
+	return lq;
 }
 
 int lqueue_enqueue(struct lqueue *q, int value)
 {
 	/* TODO: append at tail; handle the empty case (head == tail == NULL) */
-	(void)q;
-	(void)value;
-	return -1;
+	if (!q)
+		return -1;
+
+	struct qnode *new_node = malloc(sizeof(*new_node));
+
+	if (!new_node)
+		return -1;
+
+	new_node->data = value;
+	new_node->next = NULL;
+
+	if (!q->head && !q->tail) {
+		q->head = new_node;
+		q->tail = new_node;
+	} else {
+		q->tail->next = new_node;
+		q->tail = q->tail->next;
+	}
+	q->size++;
+
+	return 0;
 }
 
 int lqueue_dequeue(struct lqueue *q, int *out)
 {
-	/* TODO: pop head; if it was the last node, tail must become NULL too */
-	(void)q;
-	(void)out;
-	return -1;
+	struct qnode *emp;
+
+	if (!q || !q->head)
+		return -1;
+
+	*out = q->head->data;
+
+	emp = q->head;
+	q->head = q->head->next;
+	free(emp);
+	q->size--;
+
+	if (q->size == 0)
+		q->tail = NULL;
+
+	return 0;
 }
 
 int lqueue_peek(struct lqueue *q, int *out)
 {
-	/* TODO */
-	(void)q;
-	(void)out;
-	return -1;
+	if (!q || !q->head)
+		return -1;
+
+	*out = q->head->data;
+
+	return 0;
 }
 
 size_t lqueue_size(struct lqueue *q)
 {
-	/* TODO */
-	(void)q;
-	return 0;
+	if (!q)
+		return 0;
+	return q->size;
 }
 
 void lqueue_destroy(struct lqueue *q)
 {
-	/* TODO */
-	(void)q;
+	if (!q)
+		return;
+
+	struct qnode *cur, *next;
+
+	cur = q->head;
+	while (cur) {
+		next = cur->next;
+		free(cur);
+		cur = next;
+	}
+
+	free(q);
 }

@@ -96,6 +96,7 @@ static void test_lqueue(void)
 	assert(lqueue_dequeue(q, &v) == 0 && v == 1);	/* back to empty */
 	assert(lqueue_enqueue(q, 2) == 0);		/* tail was reset? */
 	assert(lqueue_enqueue(q, 3) == 0);
+	assert(lqueue_size(q) == 2);
 	assert(lqueue_peek(q, &v) == 0 && v == 2);
 	assert(lqueue_dequeue(q, &v) == 0 && v == 2);
 	assert(lqueue_dequeue(q, &v) == 0 && v == 3);
