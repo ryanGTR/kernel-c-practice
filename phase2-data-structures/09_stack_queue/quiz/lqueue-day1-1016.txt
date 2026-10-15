@@ -1,0 +1,4 @@
+🧠 lqueue 複習 Day 1（2 分鐘，不准查）
+Q1：lqueue 只剩一個節點時 dequeue，除了 head 還要改哪個欄位？漏了的話，下一次 enqueue 會發生什麼事？這種 bug 叫什麼？
+Q2：size_t f(void) { return -1; } —— 呼叫端拿到的值是多少？為什麼 Java 回傳 -1 沒事？
+直接回我答案就好。

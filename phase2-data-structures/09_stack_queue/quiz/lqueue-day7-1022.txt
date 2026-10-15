@@ -1,0 +1,7 @@
+🧠 lqueue 複習 Day 7（3 分鐘，不准查）
+Q1：這段非空分支的 enqueue 錯在哪？佇列原本是 [2]，enqueue(3) 之後變成什麼？
+    q->tail->next = node;
+    q->tail->data = value;
+    q->tail = node;
+Q2：if (q->head == q->tail == NULL) —— C 怎麼解讀這行？佇列是空的時候，這個條件是真還是假？
+直接回我答案就好。
