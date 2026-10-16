@@ -26,6 +26,7 @@
 
 - Q3（Day 1 回爐，10/16 作答兩題都半對）：Ryan 只答「head 改 NULL→segfault」沒點名 tail、沒說 use-after-free；Q2 答「size_t 是正整數」（應為非負）沒給值。標準：走 else，q->tail->next = node 寫進已 free 節點；(size_t)-1 = SIZE_MAX = 2^64−1
 - Q4（10/16 push_front 加考）：void push_front(struct node **head, int v)；最後一行 *head = n;，* 在左邊＝寫入（右邊＝讀出）；& 才是取位址。10/16 他答錯序列：struct node → struct node * → &node → head=&n → 「開盒子=取值」→「查位址」
+- Q5（10/16 r 題回爐）：*r＝pp（int **）、**r＝p（int *）、***r＝x（int）。10/16 他型別 3/3、格子把 **r 答成 pp（差一層＝第幾個 vs 走幾步老毛病）。int *q = *p：*p 是 int 值不是門牌（＝int *q = 1 陷阱）
 
 ## Day 7（10/22）
 - Q1：第二行寫進「舊的尾巴」—— 這時 q->tail 還沒移動。[2] → enqueue(3) 後變成 [3] → [?]：舊節點的 2 被蓋成 3，新節點的 data 沒初始化（垃圾值）、next 也沒設。正解：先設 node->data = value、node->next = NULL，再接上去並移動 tail。（老弱點：寫到 q->tail／s->top 而不是當下節點）

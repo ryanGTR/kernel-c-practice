@@ -3,4 +3,5 @@ Q1：for (n = q->head; n; n = n->next) free(n); —— 哪裡錯？ASan 會報�
 Q2：測試只有 assert(lqueue_size(q) == 0)，為什麼 return 0 的 stub 也會過？要補哪一行、放在什麼時間點，才能讓 stub 先變紅？
 Q3（Day 1 回爐）：一個節點 dequeue 後只把 head 設 NULL，下一次 enqueue 走哪個分支、哪一行寫進已釋放的記憶體？另外 (size_t)-1 在 64 位元上等於多少？
 Q4：寫出讓 push_front(&head, 5) 能改到呼叫端 head 的函式簽名與最後一行。那一行的 * 是在讀還是寫？
+Q5：int ***r = &pp;（pp→p→x）。*r、**r 各等於哪一格？int *q = *p; 為什麼編不過？
 直接回我答案就好。
