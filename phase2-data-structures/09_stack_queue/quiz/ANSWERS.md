@@ -24,6 +24,8 @@
 - Q1：free(n) 之後 for 的第三段才讀 n->next → 讀已釋放的記憶體，ASan 報 heap-use-after-free。改：先存 next = cur->next，再 free(cur)，再 cur = next（同 lstack_destroy）
 - Q2：stub 永遠回 0，剛好跟「清空時應該是 0」一樣，測試分不出對錯。要在答案「不是 0」的時間點問：enqueue(2)、enqueue(3) 之後 assert(lqueue_size(q) == 2)。驗證法：把 size 改回 stub 跑一次確認變紅，再改回來
 
+- Q3（Day 1 回爐，10/16 作答兩題都半對）：Ryan 只答「head 改 NULL→segfault」沒點名 tail、沒說 use-after-free；Q2 答「size_t 是正整數」（應為非負）沒給值。標準：走 else，q->tail->next = node 寫進已 free 節點；(size_t)-1 = SIZE_MAX = 2^64−1
+
 ## Day 7（10/22）
 - Q1：第二行寫進「舊的尾巴」—— 這時 q->tail 還沒移動。[2] → enqueue(3) 後變成 [3] → [?]：舊節點的 2 被蓋成 3，新節點的 data 沒初始化（垃圾值）、next 也沒設。正解：先設 node->data = value、node->next = NULL，再接上去並移動 tail。（老弱點：寫到 q->tail／s->top 而不是當下節點）
 - Q2：解讀成 (q->head == q->tail) == NULL。空佇列時 head == tail 為真 → 1，再比 1 == NULL（0）→ 假。所以空佇列反而進不了分支。-Werror=parentheses 會擋下來；Java 的 boolean == null 直接編譯不過
