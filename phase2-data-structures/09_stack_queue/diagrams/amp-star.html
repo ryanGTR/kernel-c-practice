@@ -191,6 +191,25 @@ int *p = &amp;x;
 	<div class="stage" data-scenario="push"></div>
 </section>
 
+<section class="lesson" id="triple">
+	<div class="eyebrow">第 8 課 · r 題</div>
+	<h2>int ***r：每走一次，少一顆星</h2>
+	<p>今晚的 r 題。重點是「走幾次」和「停在哪一格」一一對應：走 1 次停在 pp，走 2 次停在 p，走 3 次才到 x。</p>
+	<div class="stage" data-scenario="triple"></div>
+	<div class="table-wrap">
+		<table>
+			<thead><tr><th>運算式</th><th>走幾次門牌</th><th>停在哪一格</th><th>型別</th><th>值</th></tr></thead>
+			<tbody>
+				<tr><td><code>r</code></td><td>0</td><td>r 自己</td><td><code>int ***</code></td><td class="mono">0x300</td></tr>
+				<tr><td><code>*r</code></td><td>1</td><td>pp</td><td><code>int **</code></td><td class="mono">0x200</td></tr>
+				<tr><td><code>**r</code></td><td>2</td><td>p</td><td><code>int *</code></td><td class="mono">0x100</td></tr>
+				<tr><td><code>***r</code></td><td>3</td><td>x</td><td><code>int</code></td><td class="mono">1</td></tr>
+			</tbody>
+		</table>
+	</div>
+	<p>星星數 + 型別星星數永遠等於 3：<code>**r</code> 用了 2 顆，型別就剩 1 顆，是 <code>int *</code>。</p>
+</section>
+
 <section class="lesson" id="table">
 	<div class="eyebrow">總表</div>
 	<h2>一張表看完</h2>
@@ -316,6 +335,31 @@ int *p = &amp;x;
 				{ line: [3], ops: [{ t: "walk", path: ["p", "z"], label: "*p" }, { t: "drop", to: "z", text: "7" }],
 				  state: { x: "9", z: "7", p: "0x104", pp: "0x200" },
 				  text: "p 現在的門牌是 0x104，所以 7 寫進 z。x 還是 9。" }
+			]
+		},
+		triple: {
+			rows: [
+				{ id: "x", name: "x", type: "int", addr: "0x100" },
+				{ id: "p", name: "p", type: "int *", addr: "0x200" },
+				{ id: "pp", name: "pp", type: "int **", addr: "0x300" },
+				{ id: "r", name: "r", type: "int ***", addr: "0x400" }
+			],
+			code: ["int x = 1;", "int *p = &x;", "int **pp = &p;", "int ***r = &pp;", "", "*r     /* int **  */", "**r    /* int *   */", "***r   /* int     */"],
+			steps: [
+				{ line: [0, 1, 2], state: { x: "1", p: "0x100", pp: "0x200" },
+				  text: "pp → p → x，跟第 4 課一樣。" },
+				{ line: [3], ops: [{ t: "fly", from: "pp", to: "r", text: "0x300" }],
+				  state: { x: "1", p: "0x100", pp: "0x200", r: "0x300" },
+				  text: "&pp 是 pp 自己的門牌 0x300，放進 r。pp 是 int **，裝它門牌的 r 再多一顆星：int ***。" },
+				{ line: [5], ops: [{ t: "walk", path: ["r", "pp"], label: "*r" }],
+				  state: { x: "1", p: "0x100", pp: "0x200", r: "0x300" },
+				  text: "*r：走 1 次，停在 pp。型別 int ***  拿掉一顆星 → int **。值是 pp 裡放的 0x200，也就是 &p。" },
+				{ line: [6], ops: [{ t: "walk", path: ["r", "pp"], label: "*r" }, { t: "walk", path: ["pp", "p"], label: "**r" }],
+				  state: { x: "1", p: "0x100", pp: "0x200", r: "0x300" },
+				  text: "**r：走 2 次，停在 p，不是 pp。型別再拿掉一顆星 → int *。值是 p 裡放的 0x100。" },
+				{ line: [7], ops: [{ t: "walk", path: ["r", "pp"], label: "*r" }, { t: "walk", path: ["pp", "p"], label: "**r" }, { t: "walk", path: ["p", "x"], label: "***r" }],
+				  state: { x: "1", p: "0x100", pp: "0x200", r: "0x300" },
+				  text: "***r：走 3 次，停在 x。星星拿光 → int，值是 1。" }
 			]
 		},
 		push: {
