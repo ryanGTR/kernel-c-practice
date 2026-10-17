@@ -18,23 +18,32 @@ int three_sum(int *nums, int n, int (*out)[3], int max_out)
 	for (int x = 0; x < n; x++) {
 		if (x > 0 && nums[x] == nums[x - 1])
 			continue;
-		for (int y = x + 1; y < n; y++) {
-			if (y > x + 1 && nums[y] == nums[y - 1])
-				continue;
-			for (int z = y + 1; z < n; z++) {
-				if (z > y + 1 && nums[z] == nums[z - 1])
-					continue;
 
-				if ((long)nums[x] + nums[y] + nums[z] == 0) {
-					if (cnt == max_out) {
-						return -1;
-					} else {
-						out[cnt][0] = nums[x];
-						out[cnt][1] = nums[y];
-						out[cnt][2] = nums[z];
-						cnt++;
-					}
-				}
+		int l = x + 1;
+		int r = n - 1;
+
+		while (l < r) {
+			long sum = (long)nums[x] + nums[l] + nums[r];
+
+			if (sum < 0) {
+				l++;
+			} else if (sum > 0) {
+				r--;
+			} else {
+				if (cnt == max_out)
+					return -1;
+				out[cnt][0] = nums[x];
+				out[cnt][1] = nums[l];
+				out[cnt][2] = nums[r];
+				cnt++;
+
+				while (l < r && nums[l] == nums[l + 1])
+					l++;
+				while (l < r && nums[r] == nums[r - 1])
+					r--;
+
+				l++;
+				r--;
 			}
 		}
 	}
