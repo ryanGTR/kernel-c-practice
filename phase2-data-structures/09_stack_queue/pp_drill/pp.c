@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
- * Q: push_front 的第一個參數是什麼型別？為什麼不是 struct node * ？
+ * Q: push_front 裡為什麼要寫 *head = n，而不是 head = n ？
  * A:
  */
 #include <stdlib.h>
