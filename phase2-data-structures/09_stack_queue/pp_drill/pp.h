@@ -7,6 +7,8 @@ struct node {
 	struct node *next;
 };
 
-/* TODO: declare push_front, pop_front, list_free (see SPEC.md) */
+int push_front(struct node **head, int val);	/* 0 ok, -1 alloc fail */
+int pop_front(struct node **head, int *out);	/* 0 ok, -1 if empty */
+void list_free(struct node **head);		/* *head is NULL afterwards */
 
 #endif /* PP_H */
