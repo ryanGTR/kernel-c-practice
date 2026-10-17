@@ -68,3 +68,7 @@ c-basics/struct/struct_demo
 
 # Reference PDFs (copyrighted, ~157MB) stay local only
 book/
+
+# c-basics test binaries
+c-basics/*/test_*
+!c-basics/*/test_*.c
