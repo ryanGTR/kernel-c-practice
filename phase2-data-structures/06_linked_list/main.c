@@ -3,6 +3,71 @@
 #include <assert.h>
 #include "linked_list.h"
 
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
+
+/* Build a list holding vals[0..n-1] in order. */
+static struct node *build(const int *vals, int n)
+{
+	struct node *head = NULL;
+
+	for (int i = 0; i < n; i++)
+		head = list_append(head, vals[i]);
+	return head;
+}
+
+/* The list must hold exactly want[0..n-1], then end. */
+static void check(struct node *head, const int *want, int n)
+{
+	for (int i = 0; i < n; i++) {
+		assert(head != NULL);
+		assert(head->data == want[i]);
+		head = head->next;
+	}
+	assert(head == NULL);
+}
+
+static void test_reverse(void)
+{
+	/* empty list stays empty */
+	assert(list_reverse(NULL) == NULL);
+
+	/* one node: same node comes back, still terminated */
+	struct node *one = list_append(NULL, 42);
+
+	assert(list_reverse(one) == one);
+	assert(one->next == NULL);
+	list_free_all(one);
+
+	/* two nodes: the smallest case where links actually flip */
+	const int two[] = { 1, 2 };
+	const int two_rev[] = { 2, 1 };
+	struct node *l2 = build(two, ARRAY_SIZE(two));
+
+	l2 = list_reverse(l2);
+	check(l2, two_rev, ARRAY_SIZE(two_rev));
+	list_free_all(l2);
+
+	/* many nodes, in place: old head becomes the tail, no new nodes */
+	const int five[] = { 10, 20, 30, 40, 50 };
+	const int five_rev[] = { 50, 40, 30, 20, 10 };
+	struct node *l5 = build(five, ARRAY_SIZE(five));
+	struct node *old_head = l5;
+	struct node *old_tail = l5->next->next->next->next;
+
+	l5 = list_reverse(l5);
+	check(l5, five_rev, ARRAY_SIZE(five_rev));
+	assert(l5 == old_tail);
+	assert(old_head->next == NULL);
+
+	/* reversing twice gives back the original */
+	l5 = list_reverse(l5);
+	check(l5, five, ARRAY_SIZE(five));
+	assert(l5 == old_head);
+	list_free_all(l5);
+
+	printf("list_reverse: all cases passed\n");
+}
+
 int main(void)
 {
 	struct node *list = NULL;
@@ -90,7 +155,8 @@ int main(void)
 	many = list_append(many, 3);
 	list_free_all(many);
 
-	/* TODO: Bonus - test list_reverse */
+	/* Bonus - test list_reverse */
+	test_reverse();
 
 	list_free_all(list);
 

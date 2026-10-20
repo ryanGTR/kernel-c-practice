@@ -114,6 +114,15 @@ void list_free_all(struct node *head)
 struct node *list_reverse(struct node *head)
 {
 	/* TODO: bonus - implement */
-	(void)head;
-	return NULL;
+	struct node *cur = head, *prev = NULL;
+
+	while (cur) {
+		struct node *next = cur->next;
+
+		cur->next = prev;
+		prev = cur;
+		cur = next;
+	}
+
+	return prev;
 }

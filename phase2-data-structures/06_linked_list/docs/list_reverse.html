@@ -1,0 +1,443 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>list_reverse 指標動畫</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: one wide stage (the list in memory) on top, code + variables side by side below, stacking on phones */
+:root {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --fg: #19212d;
+  --muted: #5b6676;
+  --line: #c6cfdb;
+  --soft: #e8edf3;
+  --prev: #0d8577;
+  --cur: #b8650a;
+  --next: #6a4ed6;
+  --head: #6f7a8a;
+  --bad: #c2362f;
+  --hl: #fff3d9;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151b; --surface: #19202a; --fg: #e3e8ef; --muted: #96a1b0; --line: #364254; --soft: #222b37;
+    --prev: #3cc3b2; --cur: #f0a245; --next: #a68fff; --head: #8d97a6; --bad: #ff6b61; --hl: #3a2f17;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151b; --surface: #19202a; --fg: #e3e8ef; --muted: #96a1b0; --line: #364254; --soft: #222b37;
+  --prev: #3cc3b2; --cur: #f0a245; --next: #a68fff; --head: #8d97a6; --bad: #ff6b61; --hl: #3a2f17;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 40px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 18px; }
+header h1 { font-size: 1.5rem; margin: 0; text-wrap: balance; font-weight: 700; }
+header h1 code { font-family: var(--font-code); font-size: 0.95em; }
+header p { margin: 4px 0 0; color: var(--muted); max-width: 65ch; }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.controls .grow { flex: 1 1 auto; }
+button, select {
+  font: inherit; font-size: 0.9rem; color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer;
+}
+button:hover, select:hover { border-color: var(--muted); }
+button:focus-visible, select:focus-visible { outline: 2px solid var(--cur); outline-offset: 2px; }
+button.primary { background: var(--fg); color: var(--bg); border-color: var(--fg); min-width: 5.5em; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; }
+.seg button[aria-pressed="true"] { background: var(--soft); font-weight: 700; }
+.counter { font-family: var(--font-code); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+label.inline { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-size: 0.9rem; }
+
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; }
+.stage svg { display: block; width: 100%; min-width: 560px; height: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; padding: 8px 14px 10px; border-top: 1px solid var(--soft); font-size: 0.82rem; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+
+.note {
+  background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--cur);
+  border-radius: 8px; padding: 10px 14px; min-height: 3.4em;
+}
+.note.bad { border-left-color: var(--bad); }
+.note b { font-weight: 700; }
+.note code, .vars code, .walk code { font-family: var(--font-code); font-size: 0.9em; }
+
+.cols { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; }
+@media (max-width: 760px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; min-width: 0; }
+.panel h2 { font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0; padding: 10px 14px 6px; font-weight: 600; }
+
+pre.code { margin: 0; padding: 4px 0 12px; font-family: var(--font-code); font-size: 0.86rem; line-height: 1.75; overflow-x: auto; }
+pre.code .ln { display: block; padding: 0 14px 0 0; white-space: pre; border-left: 3px solid transparent; }
+pre.code .ln .no { display: inline-block; width: 3.2em; text-align: right; padding-right: 1em; color: var(--muted); user-select: none; }
+pre.code .ln.on { background: var(--hl); border-left-color: var(--cur); }
+pre.code .kw { color: var(--next); }
+pre.code .bad { color: var(--bad); font-weight: 600; }
+
+.vars { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; padding: 2px 14px 12px; font-variant-numeric: tabular-nums; }
+.vars dt { font-family: var(--font-code); font-weight: 600; }
+.vars dd { margin: 0; font-family: var(--font-code); font-size: 0.88rem; }
+.vars dd.flash { animation: flash 0.7s ease-out; }
+@keyframes flash { from { background: var(--hl); } to { background: transparent; } }
+.walk { padding: 0 14px 12px; display: grid; gap: 4px; font-size: 0.9rem; }
+.walk div { overflow-wrap: anywhere; }
+.walk .loop { color: var(--bad); font-weight: 700; }
+.hint { color: var(--muted); font-size: 0.82rem; }
+
+svg text { font-family: var(--font-code); font-variant-ligatures: none; }
+pre.code, .vars dd, code { font-variant-ligatures: none; }
+.arrow { transition: opacity 0.25s; }
+@media (prefers-reduced-motion: reduce) { .vars dd.flash { animation: none; } .arrow { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1><code>list_reverse</code> 指標動畫</h1>
+    <p>一步一行，看 <code>prev</code>、<code>cur</code>、<code>next</code> 三個指標怎麼移動，以及每個節點的 <code>next</code> 箭頭什麼時候被轉向。程式碼就是你通過測試的那一版。</p>
+  </header>
+
+  <div class="controls">
+    <button id="btn-prev" type="button" aria-label="上一步">◀ 上一步</button>
+    <button id="btn-play" type="button" class="primary">▶ 播放</button>
+    <button id="btn-next" type="button" aria-label="下一步">下一步 ▶</button>
+    <button id="btn-reset" type="button">重來</button>
+    <span class="counter" id="counter">0 / 0</span>
+    <span class="grow"></span>
+    <div class="seg" role="group" aria-label="版本">
+      <button id="v-ok" type="button" aria-pressed="true">正確版</button>
+      <button id="v-bug" type="button" aria-pressed="false">舊版 prev = head</button>
+    </div>
+    <label class="inline" for="len">節點數
+      <select id="len">
+        <option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option>
+      </select>
+    </label>
+    <label class="inline" for="speed">速度
+      <select id="speed">
+        <option value="1600">慢</option><option value="900" selected>中</option><option value="450">快</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="stage">
+    <svg id="svg" role="img" aria-label="鏈結串列在記憶體中的樣子"></svg>
+    <div class="legend">
+      <span style="--c: var(--prev)">prev：已反轉那段的頭</span>
+      <span style="--c: var(--cur)">cur：現在要處理的節點</span>
+      <span style="--c: var(--next)">next：先拉住後面</span>
+      <span style="--c: var(--head)">head：函式參數，不會動</span>
+    </div>
+  </div>
+
+  <div class="note" id="note" aria-live="polite"></div>
+
+  <div class="cols">
+    <section class="panel">
+      <h2>linked_list.c</h2>
+      <pre class="code" id="code"></pre>
+    </section>
+    <section class="panel">
+      <h2>變數（stack 上）</h2>
+      <dl class="vars" id="vars"></dl>
+      <h2>從指標往下走</h2>
+      <div class="walk" id="walk"></div>
+      <p class="hint" style="padding: 0 14px 12px; margin: 0;">鍵盤：← → 一步，空白鍵播放／暫停。</p>
+    </section>
+  </div>
+</div>
+
+<script>
+(function () {
+  const NULL = -1;
+  // 假的 heap 位址，讓「指標就是位址」看得見
+  const addr = i => i === NULL ? "NULL" : "0x55a0" + (0x2a0 + i * 0x20).toString(16);
+  const VAL = [10, 20, 30, 40, 50];
+
+  const CODE = {
+    ok: [
+      'struct node *list_reverse(struct node *head)',
+      '{',
+      '\tstruct node *cur = head, *prev = NULL;',
+      '',
+      '\t<kw>while</kw> (cur) {',
+      '\t\tstruct node *next = cur->next;',
+      '',
+      '\t\tcur->next = prev;',
+      '\t\tprev = cur;',
+      '\t\tcur = next;',
+      '\t}',
+      '',
+      '\t<kw>return</kw> prev;',
+      '}'
+    ],
+    bug: [
+      'struct node *list_reverse(struct node *head)',
+      '{',
+      '\tstruct node *cur = head, *prev = <bad>head</bad>;',
+      '',
+      '\t<kw>while</kw> (cur) {',
+      '\t\tstruct node *next = cur->next;',
+      '',
+      '\t\tcur->next = prev;',
+      '\t\tprev = cur;',
+      '\t\tcur = next;',
+      '\t}',
+      '',
+      '\t<kw>return</kw> prev;',
+      '}'
+    ]
+  };
+  const L = { init: 3, test: 5, save: 6, flip: 8, mvp: 9, mvc: 10, ret: 13 };
+
+  const name = (i, n) => i === NULL ? "NULL" : "節點 " + VAL[i];
+
+  function simulate(n, buggy) {
+    const nx = [];
+    for (let i = 0; i < n; i++) nx.push(i + 1 < n ? i + 1 : NULL);
+    const frames = [];
+    let prev = buggy ? 0 : NULL, cur = 0, next = null, round = 0;
+    const push = (line, note, extra) => frames.push(Object.assign({
+      line, note, nx: nx.slice(), prev, cur, next, round, changed: null, bad: false
+    }, extra || {}));
+
+    push(L.init, buggy
+      ? `cur 和 prev <b>都</b>指向 head（${name(0)}）。prev 本來應該代表「已反轉那段的頭」，但現在還沒反轉任何東西，它卻已經指著一個節點了。`
+      : `cur 從 head（${name(0)}）出發，prev 從 <code>NULL</code> 出發：已反轉的那段一開始是空的，空串列的頭就是 NULL。`);
+
+    for (let guard = 0; guard < 50; guard++) {
+      if (cur === NULL) {
+        push(L.test, `cur 是 NULL，條件不成立，離開迴圈。所有節點都處理完了。`);
+        break;
+      }
+      round++;
+      push(L.test, `第 ${round} 圈：cur 是 ${name(cur)}，不是 NULL，進入迴圈。`);
+      next = nx[cur];
+      push(L.save, `next = cur->next：先記住 ${name(next)}。下一行會改掉 ${name(cur)} 的箭頭，改掉之後只剩 next 知道後面在哪。`);
+      nx[cur] = prev;
+      const selfLoop = prev === cur;
+      push(L.flip, selfLoop
+        ? `cur->next = prev：prev 和 cur 是同一個節點，${name(cur)} 的箭頭指向<b>自己</b>。這就是舊版的 bug，反轉後它會變成尾巴，尾巴繞回自己。`
+        : `cur->next = prev：<b>轉向</b>。${name(cur)} 的箭頭改指 ${name(prev)}，它和後面斷開了。`,
+        { changed: cur, bad: selfLoop });
+      prev = cur;
+      push(L.mvp, `prev = cur：prev 往右移一格，到 ${name(prev)}。現在「已反轉那段」的頭是它。`);
+      cur = next;
+      push(L.mvc, `cur = next：cur 往右移一格，到 ${name(cur)}。因為 ${name(prev)} 的箭頭已經改掉了，這裡只能靠 next。`);
+      next = null; // 離開 block，next 的生命週期結束
+    }
+    const loops = walk(nx, prev).loop;
+    push(L.ret, loops
+      ? `回傳 prev（${name(prev)}）。看起來反轉了，但往下走會繞回 ${name(0)} 自己，走不到 NULL。測試的 <code>one->next == NULL</code> 就是在抓這個。`
+      : `回傳 prev（${name(prev)}），它是新的 head。原本的 head（${name(0)}）變成尾巴，next 是 NULL。`,
+      { bad: loops, done: true });
+    return frames;
+  }
+
+  function walk(nx, from) {
+    const seen = new Set(), out = [];
+    let p = from;
+    while (p !== NULL) {
+      if (seen.has(p)) return { out, loop: p };
+      seen.add(p); out.push(p); p = nx[p];
+    }
+    return { out, loop: null };
+  }
+
+  // ---- 繪圖 ----
+  const svg = document.getElementById("svg");
+  const NS = "http://www.w3.org/2000/svg";
+  const W = 108, GAP = 58, X0 = 150, NY = 112, NH = 46, VW = 58;
+  const el = (tag, attrs, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(e);
+    return e;
+  };
+  const nodeX = i => X0 + i * (W + GAP);
+  const slotX = i => i === NULL ? 52 : nodeX(i) + W / 2;
+
+  function draw(f, n) {
+    svg.textContent = "";
+    const width = X0 + n * (W + GAP) + 10;
+    svg.setAttribute("viewBox", `0 0 ${width} 250`);
+    const defs = el("defs", {});
+    for (const [id, color] of [["a-fg", "var(--muted)"], ["a-hot", "var(--cur)"], ["a-bad", "var(--bad)"]]) {
+      const m = el("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
+      el("path", { d: "M0,0 L10,5 L0,10 z", fill: color }, m);
+    }
+
+    // NULL 槽：給指向 NULL 的變數一個落點
+    el("rect", { x: 22, y: NY, width: 60, height: NH, rx: 6, fill: "var(--soft)", stroke: "var(--line)", "stroke-dasharray": "4 3" });
+    el("text", { x: 52, y: NY + 29, "text-anchor": "middle", fill: "var(--muted)", "font-size": 14 }).textContent = "NULL";
+
+    // 箭頭（節點的 next 欄位）
+    for (let i = 0; i < n; i++) {
+      const t = f.nx[i];
+      const hot = f.changed === i;
+      const bad = t === i;
+      const stroke = bad ? "var(--bad)" : hot ? "var(--cur)" : "var(--muted)";
+      const marker = bad ? "url(#a-bad)" : hot ? "url(#a-hot)" : "url(#a-fg)";
+      const sw = hot || bad ? 2.6 : 1.7;
+      const sx = nodeX(i) + VW + (W - VW) / 2; // next 欄位中心
+      if (t === NULL) continue;  // 畫在節點之後，免得被蓋掉
+      let d;
+      if (t === i) {
+        const y = NY + NH;
+        d = `M${sx},${y} C${sx + 30},${y + 62} ${nodeX(i) - 30},${y + 62} ${nodeX(i) + 20},${y + 4}`;
+      } else if (t > i) {
+        d = `M${sx},${NY + NH / 2} L${nodeX(t) - 3},${NY + NH / 2}`;
+      } else {
+        const tx = slotX(t), y = NY + NH;
+        const depth = 46 + (i - t - 1) * 18;
+        d = `M${sx},${y} C${sx},${y + depth} ${tx},${y + depth} ${tx},${y + 4}`;
+      }
+      el("path", { class: "arrow", d, fill: "none", stroke, "stroke-width": sw, "marker-end": marker });
+    }
+
+    // 節點
+    for (let i = 0; i < n; i++) {
+      const x = nodeX(i);
+      const ring = f.cur === i ? "var(--cur)" : f.prev === i ? "var(--prev)" : "var(--line)";
+      el("rect", { x, y: NY, width: W, height: NH, rx: 6, fill: "var(--surface)", stroke: ring, "stroke-width": ring === "var(--line)" ? 1.5 : 2.4 });
+      el("line", { x1: x + VW, y1: NY, x2: x + VW, y2: NY + NH, stroke: "var(--line)" });
+      el("text", { x: x + VW / 2, y: NY + 30, "text-anchor": "middle", fill: "var(--fg)", "font-size": 18, "font-weight": 600 }).textContent = VAL[i];
+      el("text", { x: x + 2, y: NY - 7, fill: "var(--muted)", "font-size": 10 }).textContent = addr(i);
+      el("text", { x: x + VW / 2, y: NY + NH + 13, "text-anchor": "middle", fill: "var(--muted)", "font-size": 9 }).textContent = "val";
+      el("text", { x: x + VW + (W - VW) / 2, y: NY + NH + 13, "text-anchor": "middle", fill: "var(--muted)", "font-size": 9 }).textContent = "next";
+      if (f.nx[i] === NULL)
+        el("text", { x: x + VW + (W - VW) / 2, y: NY + 28, "text-anchor": "middle", fill: f.changed === i ? "var(--cur)" : "var(--muted)", "font-size": 11 }).textContent = "NULL";
+    }
+
+    // 指標標籤（stack 上的變數指向誰）
+    const tags = [["head", 0, "var(--head)"], ["prev", f.prev, "var(--prev)"], ["cur", f.cur, "var(--cur)"]];
+    if (f.next !== null) tags.push(["next", f.next, "var(--next)"]);
+    const bySlot = new Map();
+    for (const [label, target, color] of tags) {
+      if (!bySlot.has(target)) bySlot.set(target, []);
+      bySlot.get(target).push([label, color]);
+    }
+    for (const [target, list] of bySlot) {
+      const cx = slotX(target);
+      const tw = 44, gap = 4;
+      const total = list.length * tw + (list.length - 1) * gap;
+      list.forEach(([label, color], k) => {
+        const x = cx - total / 2 + k * (tw + gap);
+        el("rect", { x, y: 46, width: tw, height: 22, rx: 11, fill: color });
+        el("text", { x: x + tw / 2, y: 61, "text-anchor": "middle", fill: "var(--surface)", "font-size": 12, "font-weight": 600 }).textContent = label;
+        el("line", { x1: x + tw / 2, y1: 68, x2: cx, y2: NY - 20, stroke: color, "stroke-width": 1.6 });
+      });
+    }
+    el("text", { x: 10, y: 24, fill: "var(--muted)", "font-size": 11 }).textContent = "stack：函式裡的指標變數";
+    el("text", { x: 10, y: 242, fill: "var(--muted)", "font-size": 11 }).textContent = "heap：malloc 出來的節點（位址是示意）";
+  }
+
+  // ---- 程式碼、變數、說明 ----
+  const codeEl = document.getElementById("code");
+  const varsEl = document.getElementById("vars");
+  const walkEl = document.getElementById("walk");
+  const noteEl = document.getElementById("note");
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  function renderCode(lines, on) {
+    codeEl.innerHTML = lines.map((src, i) => {
+      let h = esc(src.replace(/\t/g, "    "))
+        .replace(/&lt;kw&gt;(.*?)&lt;\/kw&gt;/g, '<span class="kw">$1</span>')
+        .replace(/&lt;bad&gt;(.*?)&lt;\/bad&gt;/g, '<span class="bad">$1</span>');
+      return `<span class="ln${i + 1 === on ? " on" : ""}"><span class="no">${i + 1}</span>${h || " "}</span>`;
+    }).join("");
+  }
+
+  let lastVars = {};
+  function renderVars(f) {
+    const v = {
+      head: addr(0) + "  (" + VAL[0] + ")",
+      prev: f.prev === NULL ? "NULL" : addr(f.prev) + "  (" + VAL[f.prev] + ")",
+      cur: f.cur === NULL ? "NULL" : addr(f.cur) + "  (" + VAL[f.cur] + ")",
+      next: f.next === null ? "—  不在 scope（只活在迴圈的 { } 裡）" : f.next === NULL ? "NULL" : addr(f.next) + "  (" + VAL[f.next] + ")"
+    };
+    const color = { head: "var(--head)", prev: "var(--prev)", cur: "var(--cur)", next: "var(--next)" };
+    varsEl.innerHTML = Object.keys(v).map(k =>
+      `<dt style="color:${color[k]}">${k}</dt><dd class="${lastVars[k] !== undefined && lastVars[k] !== v[k] ? "flash" : ""}">${esc(v[k])}</dd>`
+    ).join("");
+    lastVars = v;
+  }
+
+  function renderWalk(f) {
+    const line = (label, color, from) => {
+      if (from === NULL) return `<div><code style="color:${color}">${label}</code> → NULL</div>`;
+      const w = walk(f.nx, from);
+      const s = w.out.map(i => VAL[i]).join(" → ");
+      return `<div><code style="color:${color}">${label}</code> → ${s}${w.loop !== null
+        ? ` → <span class="loop">↺ 又回到 ${VAL[w.loop]}，永遠走不到 NULL</span>` : " → NULL"}</div>`;
+    };
+    walkEl.innerHTML = line("prev", "var(--prev)", f.prev) + line("cur", "var(--cur)", f.cur);
+  }
+
+  // ---- 狀態與控制 ----
+  let buggy = false, n = 3, frames = [], idx = 0, timer = null;
+  const btnPlay = document.getElementById("btn-play");
+  const counter = document.getElementById("counter");
+
+  function rebuild() {
+    frames = simulate(n, buggy);
+    idx = 0; lastVars = {};
+    show();
+  }
+  function show() {
+    const f = frames[idx];
+    draw(f, n);
+    renderCode(buggy ? CODE.bug : CODE.ok, f.line);
+    renderVars(f);
+    renderWalk(f);
+    noteEl.innerHTML = f.note;
+    noteEl.classList.toggle("bad", !!f.bad);
+    counter.textContent = `${idx + 1} / ${frames.length}`;
+  }
+  function step(d) {
+    const j = Math.min(frames.length - 1, Math.max(0, idx + d));
+    if (j === idx) { stop(); return; }
+    idx = j; show();
+  }
+  function stop() { clearInterval(timer); timer = null; btnPlay.textContent = "▶ 播放"; }
+  function play() {
+    if (idx === frames.length - 1) { idx = 0; lastVars = {}; show(); }
+    btnPlay.textContent = "❚❚ 暫停";
+    timer = setInterval(() => step(1), +document.getElementById("speed").value);
+  }
+  btnPlay.onclick = () => timer ? stop() : play();
+  document.getElementById("btn-next").onclick = () => { stop(); step(1); };
+  document.getElementById("btn-prev").onclick = () => { stop(); step(-1); };
+  document.getElementById("btn-reset").onclick = () => { stop(); idx = 0; lastVars = {}; show(); };
+  document.getElementById("len").onchange = e => { stop(); n = +e.target.value; rebuild(); };
+  document.getElementById("speed").onchange = () => { if (timer) { stop(); play(); } };
+  const vOk = document.getElementById("v-ok"), vBug = document.getElementById("v-bug");
+  function setVariant(b) {
+    stop(); buggy = b;
+    vOk.setAttribute("aria-pressed", String(!b));
+    vBug.setAttribute("aria-pressed", String(b));
+    rebuild();
+  }
+  vOk.onclick = () => setVariant(false);
+  vBug.onclick = () => setVariant(true);
+  document.addEventListener("keydown", e => {
+    if (e.target.closest("select")) return;
+    if (e.key === "ArrowRight") { stop(); step(1); e.preventDefault(); }
+    else if (e.key === "ArrowLeft") { stop(); step(-1); e.preventDefault(); }
+    else if (e.key === " " && !e.target.closest("button")) { timer ? stop() : play(); e.preventDefault(); }
+  });
+
+  rebuild();
+})();
+</script>
+</html>
