@@ -51,6 +51,12 @@ struct node *split_half(struct node *head)
 
 struct node *merge_sort(struct node *head)
 {
-	/* TODO: use split_half() and merge_two() */
-	return head;
+	if (!head || !head->next)
+		return head;
+
+	struct node *second = split_half(head);
+	struct node *left = merge_sort(head);
+	struct node *right = merge_sort(second);
+
+	return merge_two(left, right);
 }
