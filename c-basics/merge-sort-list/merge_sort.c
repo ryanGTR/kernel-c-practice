@@ -35,9 +35,18 @@ struct node *merge_two(struct node *a, struct node *b)
 
 struct node *split_half(struct node *head)
 {
-	/* TODO */
-	(void)head;
-	return NULL;
+	struct node *slow = head;
+	struct node *fast = head;
+
+	while (fast->next && fast->next->next) {
+		slow = slow->next;
+		fast = fast->next->next;
+	}
+
+	struct node *second = slow->next;
+	slow->next = NULL;
+
+	return second;
 }
 
 struct node *merge_sort(struct node *head)
